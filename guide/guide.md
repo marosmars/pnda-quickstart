@@ -1,5 +1,5 @@
 # Local development with PNDA
-This blog outlines an approach for developing applications on top of a locally deployed "PNDA like" platform. It is especially useful for local development and initial testing. Without having to dedicate resources for a full-blown PNDA deployment.
+This blog outlines an approach for developing applications on top of a locally deployed "PNDA like" platform. It is especially useful for local development and initial testing if you don’t have access to either the hardware or AWS resources needed for a full PNDA deployment.
 
 "PNDA like" means that a subset of tools that are used in PNDA are deployed in a single VM as docker containers.
 
@@ -12,31 +12,60 @@ The tools used are:
 * HUE - hadoop file browser
 
 ## VM setup for PNDA
-An "empty" VM is needed initially to host docker and all the containers. In our setup we were using Virtualbox (5.1.12), where we created a VM with:
-* Ubuntu 16.04 server
-* 2 cores
+### Create a VirtualBox VM
+Download the latest VirtualBox install if you don’t have it from https://www.virtualbox.org/
+Download the Ubuntu 16.04 server image ISO from https://www.ubuntu.com/download/server
+
+Configure a new Ubuntu 64-bit Linux VM as below in terms of OS, RAM and (VDI) HDD
 * 5 Gb of RAM
-* 30 Gb of disk space
-* 2 network interfaces
-  * NAT interface for internet access
-  * Internal interface to access other VMs
+* 30 Gb of VDI disk space
+Add a 2nd CPU
+* Go to Settings > System > Processor
+* Select 2 CPU’s
+Add a 2nd network adapter
+* Go to Settings > Network > Adapter 2
+* Set ‘Enable Network Adapter’ to ticked
+* Set ‘Attached To’ to Internal Network
+* All other settings leave as default
+
+Start your new VirtualBox image
+
+Click on the small folder icon to select the virtual optical file image…
+…and select the Ubuntu 16.04 ISO image downloaded above
+This will take you through the usual Ubuntu server install process
+
+Set the hostname accordingly e.g. ```ubuntu-pnda-docker```
+Set your account name and password as required and just ```Continue``` through the remaining setup defaults
+
+System will install and ask to reboot
+Login with your username and password above at the prompt
+
+Also to set VirtualBox > Devices > Shared Clipboard to Bidirectional to make the cut-and-paste of the install instructions that follow below easier
 
 ### Install docker
-After there's a VM up and running proceed with docker installation according to the [official guide](https://docs.docker.com/engine/installation/linux/ubuntulinux/).
+Once you have the VM up and running, proceed with docker installation according to the [official guide] including the recommended extra packages
+(https://docs.docker.com/engine/installation/linux/ubuntulinux/).
 
-Verifying the docker engine installation:
+Verify the docker engine installation:
 ```bash
 $ docker --version
 Docker version 1.13.0, build 49bf474
 ```
 Then proceed with installation of docker-compose tool according to the [official guide](https://docs.docker.com/compose/install/). It is used to deploy all of the containers defined in docker-compose.yml.
 
+Don’t forget that you may need to ```sudo``` the ```curl``` and ```chmod```steps :-)
+
 ```bash
 mmarsalek@nda:~$ docker-compose --version
 docker-compose version 1.10.0, build 4bd6f1a
 ```
 ### Deploy the platform
-Now the platform itself can be deployed, so proceed with ```git clone``` of the required configuration files from [TODO add URL](). The repository contains:
+Now the platform itself can be deployed, so proceed with ```git clone``` of the required configuration files.
+
+```bash
+git clone https://github.com/marosmars/pnda-quickstart.git [your_destination_folder]
+```
+The repository contains:
 * docker-compose definition file,
 * gobblin job definition (to transfer data from kafka to hadoop)
 * hadoop configuration
@@ -48,12 +77,12 @@ Note: The deployment scripts build on https://github.com/big-data-europe/docker-
 * kafka container
 * gobblin conteiner
 
-So now go to the new folder and in the new folder run:
+In the ```[your_destination_folder]``` run:
 ```bash
 sudo docker network create hadoop
 sudo docker-compose up -d
 ```
-It will take a while before docker pulls all the images, but after it does, you should see the following output:
+It will take a while before docker pulls all the images (hit Ctrl if the VM screen blanks during this), but after it does, you should see the following output:
 ```bash
 Creating datanode1
 Creating kafka
@@ -95,18 +124,18 @@ And these are the versions of the main components in use:
 * HUE -3.9
 
 ### Verifying the platform
-To verify that platform was successfully deployed, visit these URLs:
+To verify that platform was successfully deployed, visit these URLs (where the VM_ID is the IP address from the ```docker ps``` command above)
 * ```http://<VM.IP>:9000``` - Spark notebook
 * ```http://<VM.IP>:8088/home``` - HUE browser (login with e.g. hue/admin)
 * ```http://<VM.IP>:8080``` - Spark master
 
 ## Running applications
 
-The platform is now up and running and can be used for application development.
+If you got this far, congratulations! The platform should now be up and running and available for application development.
 
 ### Spark notebook intro
 
-Spark notebook is a UI application that enables easy prototyping for big data applications. It is similar to Jupyter notebook used in the real PNDA platform.
+Spark notebook is a web-based UI application that enables interactive prototyping of big data applications. It is similar to Jupyter Notebook used in the full PNDA platform.
 
 Go to ```http://<VM.IP>:9000``` to access Spark notebook UI. It already contains a couple of default notebooks which can be run right away. Open ```core/Simple Spark``` notebook and run (by hitting the "Play" button) the first 2 cells:
 
