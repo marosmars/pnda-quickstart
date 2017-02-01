@@ -19,9 +19,11 @@ Download the Ubuntu 16.04 server image ISO from https://www.ubuntu.com/download/
 Configure a new Ubuntu 64-bit Linux VM as below in terms of OS, RAM and (VDI) HDD
 * 5 Gb of RAM
 * 30 Gb of VDI disk space
+
 Add a 2nd CPU
 * Go to Settings > System > Processor
 * Select 2 CPU’s
+
 Add a 2nd network adapter
 * Go to Settings > Network > Adapter 2
 * Set ‘Enable Network Adapter’ to ticked
@@ -76,6 +78,8 @@ Note: The deployment scripts build on https://github.com/big-data-europe/docker-
 * different version of Spark notebook
 * kafka container
 * gobblin conteiner
+
+Before spawning the containers, modify docker-compose.yml file: under the kafka service, change ADVERTISED_HOST to match the ip of the host VM, since it's exposed in zookeeper for possible external clients.
 
 In the ```[your_destination_folder]``` run:
 ```bash
